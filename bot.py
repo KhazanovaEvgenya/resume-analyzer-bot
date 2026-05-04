@@ -2,6 +2,7 @@ import os
 import asyncio
 
 from aiogram import Bot, Dispatcher, F
+from aiogram.enums import ParseMode
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 
@@ -107,7 +108,11 @@ async def handle_text(message: Message):
         max_length = 3900
 
         if len(result) <= max_length:
-            await message.answer(result)
+            try:
+                await message.answer(result, parse_mode=ParseMode.MARKDOWN)
+            except:
+                # если Markdown сломался — отправляем как обычный текст
+                await message.answer(result)
         else:
             parts = [
                 result[i:i + max_length]
@@ -115,7 +120,10 @@ async def handle_text(message: Message):
             ]
 
             for part in parts:
-                await message.answer(part)
+                try:
+                    await message.answer(part, parse_mode=ParseMode.MARKDOWN)
+                except:
+                    await message.answer(part)
 
     except Exception as e:
         await message.answer(
